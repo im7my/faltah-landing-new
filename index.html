@@ -1,0 +1,823 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>فلته | Faltah</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="فلته — منصة تربط المسافرين بالمرسلين للتوصيل بين المدن بأسلوب أذكى وأسرع وأوفر." />
+  <link rel="icon" href="favicon.ico" />
+
+  <!-- Tailwind CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap');
+        
+    .font-ibm { font-family: 'IBM Plex Sans Arabic', sans-serif; }
+    .font-inter { font-family: 'Inter', sans-serif; }
+        
+    /* Glassmorphism */
+    .nav-blur { background: rgba(11, 18, 32, 0.85); backdrop-filter: blur(16px); border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .glass-card { 
+      background: rgba(255, 255, 255, 0.03); 
+      border: 1px solid rgba(255, 255, 255, 0.06); 
+      backdrop-filter: blur(12px); 
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); 
+      transition: all 0.3s ease; 
+    }
+    .glass-card:hover { 
+      transform: translateY(-5px); 
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4); 
+      background: rgba(255, 255, 255, 0.06); 
+      border-color: rgba(10, 132, 255, 0.3); 
+    }
+
+    /* Animations */
+    .fade-up { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1); }
+    .fade-up.is-visible { opacity: 1; transform: translateY(0); }
+        
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+        
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar { width: 8px; }
+    ::-webkit-scrollbar-track { background: #0B1220; }
+    ::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #334155; }
+  </style>
+</head>
+<body class="bg-[#0B1220] text-[#EAF2FF]">
+  <div id="root"></div>
+
+  <!-- React + ReactDOM + Babel -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    /* ===== SIMPLE ICON COMPONENTS (بدل lucide-react) ===== */
+    const MenuIcon = ({ className = "" }) => <span className={className}>☰</span>;
+    const XIcon = ({ className = "" }) => <span className={className}>✕</span>;
+    const GlobeIcon = ({ className = "" }) => <span className={className}>🌐</span>;
+    const ChevronRightIcon = ({ className = "" }) => <span className={className}>›</span>;
+    const CheckCircleIcon = ({ className = "" }) => <span className={className}>✔️</span>;
+    const ZapIcon = ({ className = "" }) => <span className={className}>⚡</span>;
+    const ShieldIcon = ({ className = "" }) => <span className={className}>🛡️</span>;
+    const MapPinIcon = ({ className = "" }) => <span className={className}>📍</span>;
+    const TrendingUpIcon = ({ className = "" }) => <span className={className}>📈</span>;
+    const ArrowRightIcon = ({ className = "" }) => <span className={className}>→</span>;
+    const LoaderIcon = ({ className = "" }) => <span className={"inline-block animate-spin " + className}>⏳</span>;
+    const FileTextIcon = ({ className = "" }) => <span className={className}>📄</span>;
+    const LockIcon = ({ className = "" }) => <span className={className}>🔒</span>;
+
+    /**
+     * SUPABASE CONFIGURATION
+     * Using REST API directly
+     */
+    const SUPABASE_CONFIG = {
+      url: 'https://actwsnbldlqqbkngsxjh.supabase.co',
+      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdHdzbmJsZGxxcWJrbmdzeGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzU2OTQsImV4cCI6MjA3OTExMTY5NH0.s2aNP94OLe5-iPG878UjwczjBjalVtf1HUWK-bwO7Sg'
+    };
+
+    /* ===== LEGAL CONTENT DATA ===== */
+    const legalContent = {
+      ar: {
+        privacy: {
+          title: "سياسة الخصوصية",
+          lastUpdated: "آخر تحديث: 20 نوفمبر 2025",
+          sections: [
+            {
+              heading: "1. مقدمة",
+              content: "نحن في منصة 'فلته' (Faltah) نلتزم بحماية خصوصيتك وأمان بياناتك الشخصية. توضح هذه السياسة كيفية جمعنا واستخدامنا ومشاركتنا لمعلوماتك عند استخدامك لتطبيقنا وموقعنا الإلكتروني."
+            },
+            {
+              heading: "2. البيانات التي نجمعها",
+              content: "قد نجمع أنواعًا مختلفة من المعلومات، بما في ذلك: \n- المعلومات الشخصية: الاسم، رقم الهاتف، البريد الإلكتروني، والهوية الوطنية (لأغراض التوثيق عبر نفاذ).\n- بيانات الموقع: نستخدم موقعك الجغرافي لتنسيق عمليات الاستلام والتسليم.\n- بيانات المعاملات: تفاصيل الشحنات، والرحلات، والمدفوعات."
+            },
+            {
+              heading: "3. كيف نستخدم بياناتك",
+              content: "نستخدم البيانات للأغراض التالية:\n- تسهيل عملية الربط بين المسافر والمرسل.\n- تحسين تجربة المستخدم وتطوير خدماتنا.\n- الامتثال للمتطلبات القانونية والتنظيمية في المملكة العربية السعودية.\n- إرسال تحديثات مهمة حول الشحنات أو العروض."
+            },
+            {
+              heading: "4. مشاركة البيانات",
+              content: "نحن لا نبيع بياناتك لأطراف ثالثة. تتم مشاركة البيانات فقط مع:\n- الطرف الآخر في المعاملة (المسافر أو المرسل) بالقدر اللازم لإتمام الخدمة.\n- الجهات الحكومية الرسمية عند الطلب للامتثال للقوانين المحلية."
+            },
+            {
+              heading: "5. أمان البيانات",
+              content: "نطبق أحدث التدابير الأمنية التقنية والتنظيمية لحماية بياناتك من الوصول غير المصرح به أو التغيير أو الإفصاح."
+            }
+          ]
+        },
+        terms: {
+          title: "الشروط والأحكام",
+          lastUpdated: "آخر تحديث: 20 نوفمبر 2025",
+          sections: [
+            {
+              heading: "1. قبول الشروط",
+              content: "بمجرد تحميلك لتطبيق 'فلته' أو استخدامك للموقع، فإنك توافق على الالتزام بهذه الشروط والأحكام. إذا كنت لا توافق عليها، يرجى عدم استخدام المنصة."
+            },
+            {
+              heading: "2. الأهلية والاستخدام",
+              content: "يجب أن يكون عمرك 18 عامًا على الأقل لاستخدام خدماتنا. يجب على جميع المسافرين والمرسلين تقديم بيانات حقيقية ودقيقة والتحقق من هوياتهم عبر الأنظمة المعتمدة."
+            },
+            {
+              heading: "3. المواد المحظورة",
+              content: "يمنع منعاً باتاً استخدام المنصة لنقل أي مواد غير قانونية أو محظورة حسب أنظمة المملكة العربية السعودية، ويشمل ذلك ولا يقتصر على: المخدرات، الأسلحة، المواد الكحولية، أو أي بضائع مسروقة. يتحمل المرسل والمسافر المسؤولية القانونية الكاملة عن محتوى الشحنة."
+            },
+            {
+              heading: "4. المدفوعات والرسوم",
+              content: "تتم عمليات الدفع عبر القنوات الآمنة الموفرة في التطبيق. قد تفرض المنصة رسوم خدمة يتم توضيحها قبل إتمام الطلب."
+            },
+            {
+              heading: "5. إخلاء المسؤولية",
+              content: "منصة 'فلته' هي وسيط تقني يربط بين الأطراف. نحن نبذل قصارى جهدنا للتحقق من المستخدمين، لكننا لا نتحمل المسؤولية عن أي خسارة أو تلف للشحنات ناتج عن سوء تصرف أي من الطرفين، وتظل المسؤولية تعاقدية بينهم."
+            }
+          ]
+        }
+      },
+      en: {
+        privacy: {
+          title: "Privacy Policy",
+          lastUpdated: "Last Updated: November 20, 2025",
+          sections: [
+            {
+              heading: "1. Introduction",
+              content: "At Faltah, we are committed to protecting your privacy and the security of your personal data. This policy outlines how we collect, use, and share your information when you use our app and website."
+            },
+            {
+              heading: "2. Information We Collect",
+              content: "We may collect various types of information, including:\n- Personal Information: Name, phone number, email, and National ID (for Nafath verification purposes).\n- Location Data: We use your geographic location to coordinate pickup and delivery.\n- Transaction Data: Details of shipments, trips, and payments."
+            },
+            {
+              heading: "3. How We Use Your Data",
+              content: "We use data for the following purposes:\n- Facilitating the connection between traveler and sender.\n- Improving user experience and developing our services.\n- Complying with legal and regulatory requirements in KSA.\n- Sending important updates regarding shipments or offers."
+            },
+            {
+              heading: "4. Data Sharing",
+              content: "We do not sell your data to third parties. Data is only shared with:\n- The other party in the transaction (Traveler or Sender) to the extent necessary to complete the service.\n- Official government bodies upon request to comply with local laws."
+            },
+            {
+              heading: "5. Data Security",
+              content: "We implement state-of-the-art technical and organizational security measures to protect your data from unauthorized access, alteration, or disclosure."
+            }
+          ]
+        },
+        terms: {
+          title: "Terms & Conditions",
+          lastUpdated: "Last Updated: November 20, 2025",
+          sections: [
+            {
+              heading: "1. Acceptance of Terms",
+              content: "By downloading the Faltah app or using the website, you agree to be bound by these Terms and Conditions. If you do not agree, please do not use the platform."
+            },
+            {
+              heading: "2. Eligibility",
+              content: "You must be at least 18 years old to use our services. All travelers and senders must provide true and accurate information and verify their identities via approved systems."
+            },
+            {
+              heading: "3. Prohibited Items",
+              content: "It is strictly forbidden to use the platform to transport any illegal or prohibited items under KSA laws, including but not limited to: drugs, weapons, alcohol, or stolen goods. Both Sender and Traveler bear full legal responsibility for the shipment content."
+            },
+            {
+              heading: "4. Payments and Fees",
+              content: "Payments are processed through secure channels provided in the app. The platform may charge a service fee which will be disclosed before completing the order."
+            },
+            {
+              heading: "5. Limitation of Liability",
+              content: "Faltah is a technical intermediary connecting parties. While we strive to verify users, we are not liable for any loss or damage to shipments caused by misconduct of either party; responsibility remains contractual between them."
+            }
+          ]
+        }
+      }
+    };
+
+    /* ===== TRANSLATIONS ===== */
+    const translations = {
+      ar: {
+        nav_features: "المميزات",
+        nav_how: "كيف يعمل",
+        nav_traveler: "للمسافرين",
+        nav_sender: "للمرسلين",
+        nav_invest: "للمستثمرين",
+        nav_join: "انضم الآن",
+        hero_badge: "🚀 الاقتصاد التشاركي يبدأ هنا",
+        hero_title1: "مشاويرك.",
+        hero_title2: "صارت مصدر دخل.",
+        hero_desc: "منصة \"فلته\" تجمع المسافرين والمرسلين في مكان واحد. استفد من مساحتك الفاضية وحقق دخلاً، أو أرسل شحناتك بسرعة وتوفير لم يسبق له مثيل.",
+        hero_input_label: "سجّل في قائمة الانتظار لتكون أول من يجرب:",
+        hero_input_placeholder: "رقم الجوال أو الإيميل...",
+        hero_btn_join: "انضم للقائمة",
+        hero_social_proof: "أكثر من 5,000 شخص انضموا لقائمة الانتظار",
+        features_title: "ليه العالم يختارون فلته؟",
+        features_sub: "ببساطة.. لأننا ألغينا الحواجز. سرعة، أمان، وتوفير في تطبيق واحد.",
+        feat1_title: "أسرع بـ 75%",
+        feat1_desc: "ليش تنتظر أيام؟ شحنتك توصل في نفس اليوم لأنها تسافر مع ناس رايحين لنفس الوجهة الآن.",
+        feat2_title: "أرخص بـ 40%",
+        feat2_desc: "لا تدفع لشاحنات ومصاريف تشغيلية. ادفع حق التوصيل وبس. توفير حقيقي لكل شحنة.",
+        feat3_title: "أمان وموثوقية",
+        feat3_desc: "كل مسافر موثق بهوية وطنية (نفاذ). وتتبع شحنتك مباشر خطوة بخطوة لين توصل.",
+        feat4_title: "تغطية شاملة",
+        feat4_desc: "شبكة مسافرين تغطي جميع مدن المملكة. وين ما كانت شحنتك، بنلقى لها مسافر.",
+        how_title: "كيف تبدأ؟",
+        how_sub: "ثلاث خطوات بسيطة تفصلك عن هدفك.",
+        step1_title: "سجّل في التطبيق",
+        step1_desc: "حمل التطبيق وأنشئ حسابك في ثوانٍ.",
+        step2_title: "حدد طلبك",
+        step2_desc: "أضف رحلتك كمسافر أو اطلب شحنة كمرسل.",
+        step3_title: "اتفق وانطلق",
+        step3_desc: "تواصل مباشرة، اتفق على السعر، وأتمم العملية.",
+        tag_traveler: "للمسافرين",
+        traveler_title: "سافر واربح.",
+        traveler_desc: "رايح مشوار؟ لا تروح وسيارتك فاضية. خذ معك شحنة على طريقك وغطّي تكاليف بنزينك وزيادة.",
+        traveler_sub: "✅ دخل إضافي سهل وبدون التزام.",
+        traveler_btn: "سجّل كمسافر الآن",
+        tag_sender: "للمرسلين",
+        sender_title: "شحن ولا أسرع.",
+        sender_desc: "نسيت غرض؟ تبي ترسل هدية؟ تطبيق فلته يربطك بمسافرين جاهزين يوصلون شحنتك الحين.",
+        sender_sub: "✅ من الباب للباب، وبأمان تام.",
+        sender_btn: "أرسل شحنة الآن",
+        stats_title: "أرقام تتحدث عن الحاجة",
+        stat1: "حجم السوق (SAR)",
+        stat2: "اهتمام المستهلكين",
+        stat3: "استعداد المسافرين",
+        invest_title: "تواصل معنا",
+        invest_desc: "نحن نبني المستقبل. انضم إلينا في هذه الرحلة.",
+        email1_title: "علاقات المستثمرين",
+        email1_desc: "للاستفسار عن الجولات الاستثمارية",
+        email2_title: "الشراكات الاستراتيجية",
+        email2_desc: "للمتاجر والشركات اللوجستية",
+        email3_title: "الاستفسارات العامة",
+        email3_desc: "لديك سؤال؟ نحن هنا للمساعدة",
+        footer_privacy: "سياسة الخصوصية",
+        footer_terms: "الشروط والأحكام",
+        footer_copy: "© 2025 فلته — جميع الحقوق محفوظة. صنع في المملكة العربية السعودية 🇸🇦",
+        modal_title: "سجّل اهتمامك",
+        success_msg: "🎉 تم تسجيلك بنجاح! سنتواصل معك قريباً.",
+        error_msg: "حدث خطأ، يرجى المحاولة لاحقاً"
+      },
+      en: {
+        nav_features: "Features",
+        nav_how: "How it Works",
+        nav_traveler: "Travelers",
+        nav_sender: "Senders",
+        nav_invest: "Investors",
+        nav_join: "Join Now",
+        hero_badge: "🚀 Sharing Economy Starts Here",
+        hero_title1: "Your Trips.",
+        hero_title2: "Are Now Income.",
+        hero_desc: "Faltah connects travelers and senders in one place. Monetize your empty space or ship items faster and cheaper than ever before.",
+        hero_input_label: "Join the waitlist to be the first to try:",
+        hero_input_placeholder: "Mobile or Email...",
+        hero_btn_join: "Join List",
+        hero_social_proof: "Over 5,000 people joined the waitlist",
+        features_title: "Why Choose Faltah?",
+        features_sub: "Simply because we removed the barriers. Speed, security, and savings in one app.",
+        feat1_title: "75% Faster",
+        feat1_desc: "Why wait days? Your package arrives same-day because it travels with people going there right now.",
+        feat2_title: "40% Cheaper",
+        feat2_desc: "Don't pay for trucks and overheads. Pay for the delivery only. Real savings on every shipment.",
+        feat3_title: "Secure & Reliable",
+        feat3_desc: "Every traveler is verified (Nafath). Track your shipment live step-by-step until arrival.",
+        feat4_title: "Nationwide Coverage",
+        feat4_desc: "A network of travelers covering all KSA cities. Wherever your shipment is, we'll find a traveler.",
+        how_title: "How to Start?",
+        how_sub: "Three simple steps separate you from your goal.",
+        step1_title: "Register",
+        step1_desc: "Download the app and create your account in seconds.",
+        step2_title: "Set Request",
+        step2_desc: "Post your trip as a traveler or request a shipment as a sender.",
+        step3_title: "Agree & Go",
+        step3_desc: "Chat directly, agree on price, and complete the process.",
+        tag_traveler: "For Travelers",
+        traveler_title: "Travel & Earn.",
+        traveler_desc: "Going somewhere? Don't go empty-handed. Take a package on your way and cover your gas costs plus extra.",
+        traveler_sub: "✅ Easy extra income, no commitment.",
+        traveler_btn: "Join as Traveler",
+        tag_sender: "For Senders",
+        sender_title: "Fastest Shipping.",
+        sender_desc: "Forgot something? Sending a gift? Faltah connects you with travelers ready to deliver now.",
+        sender_sub: "✅ Door to door, fully secure.",
+        sender_btn: "Send Package Now",
+        stats_title: "Numbers Speak",
+        stat1: "Market Size (SAR)",
+        stat2: "Consumer Interest",
+        stat3: "Traveler Willingness",
+        invest_title: "Contact Us",
+        invest_desc: "We are building the future. Join us on this journey.",
+        email1_title: "Investor Relations",
+        email1_desc: "For investment inquiries",
+        email2_title: "Strategic Partnerships",
+        email2_desc: "For merchants and logistics",
+        email3_title: "General Inquiries",
+        email3_desc: "Have a question? We're here",
+        footer_privacy: "Privacy Policy",
+        footer_terms: "Terms & Conditions",
+        footer_copy: "© 2025 Faltah — All rights reserved. Made in KSA 🇸🇦",
+        modal_title: "Join Waitlist",
+        success_msg: "🎉 Successfully registered! We'll contact you soon.",
+        error_msg: "Error occurred, please try again"
+      }
+    };
+
+    function App() {
+      const [lang, setLang] = useState('ar');
+      const [isMenuOpen, setIsMenuOpen] = useState(false);
+      const [showModal, setShowModal] = useState(false);
+      const [waitlistInput, setWaitlistInput] = useState('');
+      const [submitStatus, setSubmitStatus] = useState('idle'); // idle, loading, success, error
+      const [currentPage, setCurrentPage] = useState('home'); // home, privacy, terms
+      
+      const t = (key) => translations[lang][key] || key;
+
+      // Direction & Language
+      useEffect(() => {
+        document.documentElement.lang = lang;
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      }, [lang]);
+
+      // Scroll animation
+      useEffect(() => {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+            }
+          });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+        return () => observer.disconnect();
+      }, [currentPage]);
+
+      const toggleLang = () => setLang(prev => prev === 'ar' ? 'en' : 'ar');
+
+      const handleWaitlistSubmit = async () => {
+        if (!waitlistInput.trim()) {
+          setSubmitStatus('error');
+          return;
+        }
+
+        setSubmitStatus('loading');
+
+        try {
+          const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/waitlist`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'apikey': SUPABASE_CONFIG.key,
+              'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
+              'Prefer': 'return=minimal'
+            },
+            body: JSON.stringify({
+              contact: waitlistInput,
+              created_at: new Date().toISOString()
+            })
+          });
+
+          if (!response.ok) {
+            let errorData = {};
+            try {
+              errorData = await response.json();
+              console.error('Supabase Error Details:', errorData);
+            } catch (e) {
+              console.error('Supabase Error (no JSON body)');
+            }
+            throw new Error(errorData.message || 'Network error');
+          }
+
+          setSubmitStatus('success');
+          setWaitlistInput('');
+        } catch (error) {
+          console.error('Submission Error:', error);
+          setSubmitStatus('error');
+          setTimeout(() => setSubmitStatus('idle'), 3000);
+        }
+      };
+
+      const navigateTo = (page, e) => {
+        if (e) e.preventDefault();
+        setCurrentPage(page);
+        setIsMenuOpen(false);
+        window.scrollTo(0, 0);
+      };
+
+      const LegalPage = ({ type }) => {
+        const content = legalContent[lang][type];
+        return (
+          <div className="pt-32 pb-24 min-h-screen container mx-auto max-w-4xl px-6 fade-up is-visible">
+            <div className="bg-[#050911] border border-white/10 rounded-3xl p-8 md:p-12 shadow-2xl">
+              <div className="border-b border-white/10 pb-8 mb-8">
+                <h1 className="text-3xl md:text-4xl font-bold text-white mb-4">{content.title}</h1>
+                <p className="text-gray-400 text-sm">{content.lastUpdated}</p>
+              </div>
+              
+              <div className="space-y-8">
+                {content.sections.map((section, idx) => (
+                  <div key={idx}>
+                    <h2 className="text-xl font-bold text-[#0A84FF] mb-3">{section.heading}</h2>
+                    <p className="text-gray-300 leading-relaxed whitespace-pre-line text-justify">
+                      {section.content}
+                    </p>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-12 pt-8 border-t border-white/10 flex justify-center">
+                <button 
+                  onClick={(e) => navigateTo('home', e)}
+                  className="flex items-center gap-2 text-gray-400 hover:text-white transition-colors"
+                >
+                  {lang === 'ar' 
+                    ? <ArrowRightIcon className="rotate-180 inline-block" /> 
+                    : <ArrowRightIcon className="rotate-180 inline-block" />}
+                  <span>{lang === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
+      return (
+        <div className={`min-h-screen bg-[#0B1220] text-[#EAF2FF] selection:bg-[#0A84FF] selection:text-white overflow-x-hidden font-sans ${lang === 'en' ? 'font-inter' : 'font-ibm'}`}>
+          {/* BACKGROUND GLOW */}
+          <div className="fixed top-0 left-0 w-[600px] h-[600px] bg-[#0A84FF] rounded-full blur-[120px] opacity-10 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-0"></div>
+          <div className="fixed bottom-0 right-0 w-[600px] h-[600px] bg-purple-600 rounded-full blur-[120px] opacity-10 translate-x-1/2 translate-y-1/2 pointer-events-none z-0"></div>
+
+          {/* NAVBAR */}
+          <nav className="nav-blur fixed w-full top-0 z-50 h-20 flex items-center transition-all duration-300">
+            <div className="container mx-auto max-w-7xl px-6 flex justify-between items-center w-full">
+              <a href="#" onClick={(e) => navigateTo('home', e)} className="flex items-center group z-50">
+                <span className="text-3xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-gray-300 group-hover:to-white transition-all">
+                  {lang === 'ar' ? 'فلته' : 'Faltah'}
+                </span>
+              </a>
+
+              {currentPage === 'home' && (
+                <div className="hidden md:flex items-center gap-8 text-[15px] font-medium text-gray-300">
+                  {['features', 'how', 'traveler', 'sender', 'invest'].map((key) => (
+                    <a key={key} href={`#${key}`} className="hover:text-[#60A5FA] transition-colors relative group py-2">
+                      {t(`nav_${key}`)}
+                      <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-[#60A5FA] transition-all group-hover:w-full opacity-0 group-hover:opacity-100"></span>
+                    </a>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center gap-4 z-50">
+                <button 
+                  onClick={toggleLang} 
+                  className="flex items-center gap-2 bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-full text-sm font-medium transition-all"
+                >
+                  <GlobeIcon className="w-4 h-4" />
+                  {lang === 'ar' ? 'English' : 'العربية'}
+                </button>
+                
+                <button 
+                  onClick={() => setShowModal(true)}
+                  className="hidden md:flex items-center justify-center px-6 py-2.5 rounded-full bg-gradient-to-r from-[#0A84FF] to-[#0060DF] text-white font-bold text-sm shadow-lg shadow-blue-500/25 hover:shadow-blue-500/40 hover:scale-105 transition-all duration-300"
+                >
+                  {t('nav_join')}
+                </button>
+
+                {currentPage === 'home' && (
+                  <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="md:hidden p-2 text-gray-300 hover:text-white"
+                  >
+                    {isMenuOpen ? <XIcon /> : <MenuIcon />}
+                  </button>
+                )}
+              </div>
+            </div>
+          </nav>
+
+          {/* MOBILE MENU */}
+          <div className={`fixed inset-0 bg-[#0B1220] z-40 transform transition-transform duration-300 pt-24 px-6 md:hidden ${isMenuOpen ? 'translate-x-0' : (lang === 'ar' ? 'translate-x-full' : '-translate-x-full')}`}>
+            <div className="flex flex-col gap-6 text-xl font-semibold text-gray-200">
+              {['features', 'how', 'traveler', 'sender', 'invest'].map((key) => (
+                <a key={key} href={`#${key}`} onClick={() => setIsMenuOpen(false)} className="border-b border-white/5 pb-4 flex justify-between items-center">
+                  {t(`nav_${key}`)}
+                  <ChevronRightIcon className={`w-5 h-5 text-gray-500 ${lang === 'ar' ? 'rotate-180' : ''}`} />
+                </a>
+              ))}
+              <button onClick={() => {setShowModal(true); setIsMenuOpen(false);}} className="w-full py-4 mt-4 rounded-2xl bg-[#0A84FF] text-white font-bold shadow-xl">
+                {t('modal_title')}
+              </button>
+            </div>
+          </div>
+
+          {/* ROUTER */}
+          {currentPage === 'home' ? (
+            <>
+              {/* HERO */}
+              <header className="relative pt-40 pb-20 lg:pt-52 lg:pb-32 overflow-hidden">
+                <div className="container mx-auto max-w-7xl px-6 relative z-10">
+                  <div className="flex flex-col lg:flex-row items-center gap-16">
+                    {/* Content */}
+                    <div className={`lg:w-1/2 text-center ${lang === 'ar' ? 'lg:text-right' : 'lg:text-left'} fade-up`}>
+                      <div className="inline-flex items-center gap-2 px-4 py-1.5 mb-8 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 text-xs font-bold tracking-wide animate-pulse">
+                        <span className="w-2 h-2 rounded-full bg-green-400"></span>
+                        {t('hero_badge')}
+                      </div>
+                      <h1 className="text-5xl lg:text-7xl font-extrabold text-white leading-[1.1] mb-8 tracking-tight">
+                        {t('hero_title1')}<br/>
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#0A84FF] via-blue-400 to-white">
+                          {t('hero_title2')}
+                        </span>
+                      </h1>
+                      <p className="text-xl text-gray-400 mb-10 leading-relaxed max-w-xl mx-auto lg:mx-0 font-light">
+                        {t('hero_desc')}
+                      </p>
+
+                      {/* Join Form */}
+                      <div className="max-w-md mx-auto lg:mx-0 mb-8">
+                        {submitStatus === 'success' ? (
+                          <div className="bg-green-500/20 border border-green-500/50 p-4 rounded-2xl text-green-300 font-bold text-center shadow-2xl">
+                            {t('success_msg')}
+                          </div>
+                        ) : (
+                          <>
+                            <p className="text-blue-400 font-medium mb-3 text-sm">{t('hero_input_label')}</p>
+                            <div className={`bg-white/5 border border-white/10 p-1.5 rounded-full flex flex-col sm:flex-row gap-2 shadow-2xl relative overflow-hidden ring-1 ring-white/5 focus-within:ring-blue-500/50 transition-all ${submitStatus === 'error' ? 'ring-red-500/50' : ''}`}>
+                              <input 
+                                type="text" 
+                                value={waitlistInput}
+                                onChange={(e) => setWaitlistInput(e.target.value)}
+                                placeholder={submitStatus === 'error' ? t('error_msg') : t('hero_input_placeholder')}
+                                className={`flex-1 bg-transparent text-white px-6 py-3 outline-none text-lg w-full placeholder-gray-500 ${submitStatus === 'error' ? 'placeholder-red-400' : ''}`}
+                              />
+                              <button 
+                                onClick={handleWaitlistSubmit}
+                                disabled={submitStatus === 'loading'}
+                                className="bg-[#0A84FF] hover:bg-[#0070E0] px-8 py-3 rounded-full font-bold text-white shadow-lg w-full sm:w-auto whitespace-nowrap flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+                              >
+                                {submitStatus === 'loading' ? <LoaderIcon /> : t('hero_btn_join')}
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
+
+                      {/* Social Proof */}
+                      <div className={`flex items-center justify-center ${lang === 'ar' ? 'lg:justify-start' : 'lg:justify-start'} gap-4 mt-4`}>
+                        <div className="flex -space-x-3 space-x-reverse">
+                          {[1,2,3,4].map(i => (
+                            <img key={i} src={`https://i.pravatar.cc/100?img=${i*10 + 5}`} alt="User" className="w-8 h-8 rounded-full border-2 border-[#0B1220]" />
+                          ))}
+                        </div>
+                        <p className="text-sm text-gray-400 font-medium">{t('hero_social_proof')}</p>
+                      </div>
+                    </div>
+
+                    {/* Hero Image */}
+                    <div className="lg:w-1/2 w-full fade-up">
+                      <div className="relative z-10 w-full max-w-lg mx-auto hover:scale-[1.01] transition-transform duration-500">
+                        <div className="absolute -inset-1 bg-gradient-to-r from-blue-600 to-purple-600 rounded-[34px] blur opacity-30"></div>
+                        <img 
+                          src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&q=80&w=2000" 
+                          alt="Community" 
+                          className="relative rounded-[32px] shadow-2xl border border-white/10 w-full h-auto object-cover aspect-[4/3]" 
+                        />
+                        
+                        {/* Floating Element */}
+                        <div className="absolute -right-6 top-10 bg-[#162032] border border-white/10 p-4 rounded-2xl shadow-xl animate-float hidden md:block">
+                          <div className="flex items-center gap-3">
+                            <div className="bg-green-500/20 p-2 rounded-lg text-green-400"><CheckCircleIcon /></div>
+                            <div>
+                              <p className="text-xs text-gray-400">Status</p>
+                              <p className="text-sm font-bold text-white">Delivered</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </header>
+
+              {/* FEATURES */}
+              <section id="features" className="py-24 relative bg-[#050911]">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="text-center max-w-3xl mx-auto mb-20 fade-up">
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">{t('features_title')}</h2>
+                    <p className="text-gray-400 text-lg leading-relaxed">{t('features_sub')}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[
+                      { icon: <ZapIcon />, color: 'from-blue-500 to-blue-700', tKey: 'feat1' },
+                      { icon: <TrendingUpIcon />, color: 'from-green-500 to-green-700', tKey: 'feat2' },
+                      { icon: <ShieldIcon />, color: 'from-purple-500 to-purple-700', tKey: 'feat3' },
+                      { icon: <MapPinIcon />, color: 'from-orange-500 to-red-600', tKey: 'feat4' },
+                    ].map((feat, idx) => (
+                      <div key={idx} className="glass-card p-8 rounded-[32px] fade-up">
+                        <div className={`w-14 h-14 bg-gradient-to-br ${feat.color} rounded-2xl flex items-center justify-center text-white mb-6 shadow-lg text-2xl`}>
+                          {feat.icon}
+                        </div>
+                        <h3 className="text-2xl font-bold text-white mb-3">{t(`${feat.tKey}_title`)}</h3>
+                        <p className="text-gray-400 leading-relaxed">{t(`${feat.tKey}_desc`)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* HOW IT WORKS */}
+              <section id="how" className="py-24 relative">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="text-center max-w-3xl mx-auto mb-20 fade-up">
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">{t('how_title')}</h2>
+                    <p className="text-gray-400 text-lg">{t('how_sub')}</p>
+                  </div>
+                  
+                  <div className="grid md:grid-cols-3 gap-8 text-center relative">
+                    <div className="hidden md:block absolute top-8 left-10 right-10 h-0.5 bg-gradient-to-r from-transparent via-blue-500/30 to-transparent"></div>
+
+                    {[1, 2, 3].map((num) => (
+                      <div key={num} className="relative fade-up">
+                        <div className="w-16 h-16 mx-auto bg-[#0B1220] rounded-full flex items-center justify-center text-2xl font-bold text-[#0A84FF] border border-blue-500/30 mb-6 relative z-10 shadow-[0_0_30px_rgba(10,132,255,0.2)]">
+                          {num}
+                        </div>
+                        <h3 className="text-xl font-bold text-white mb-3">{t(`step${num}_title`)}</h3>
+                        <p className="text-gray-400 text-sm max-w-xs mx-auto">{t(`step${num}_desc`)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* TRAVELER */}
+              <section id="traveler" className="py-24 relative bg-[#050911]">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="flex flex-col md:flex-row items-center gap-16">
+                    <div className={`md:w-1/2 fade-up ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <span className="text-[#0A84FF] font-bold tracking-widest uppercase text-sm border-b border-[#0A84FF] pb-1">
+                        {t('tag_traveler')}
+                      </span>
+                      <h2 className="text-4xl md:text-6xl font-extrabold text-white mt-6 mb-6">
+                        {t('traveler_title')}
+                      </h2>
+                      <p className="text-xl text-gray-400 mb-8 leading-relaxed">
+                        {t('traveler_desc')}
+                        <br/>
+                        <span className="text-white mt-2 block text-lg font-medium">{t('traveler_sub')}</span>
+                      </p>
+                      <button onClick={() => setShowModal(true)} className="bg-white text-black hover:bg-gray-200 px-10 py-3.5 rounded-full font-bold transition-all shadow-lg flex items-center gap-2 group">
+                        {t('traveler_btn')}
+                        <ArrowRightIcon className={lang === 'ar' ? 'group-hover:-translate-x-1 inline-block' : 'group-hover:translate-x-1 inline-block'} />
+                      </button>
+                    </div>
+                    <div className="md:w-1/2 w-full fade-up">
+                      <img 
+                        src="https://images.unsplash.com/photo-1449965408869-eaa3f722e40d?auto=format&fit=crop&q=80&w=2000" 
+                        alt="Traveler" 
+                        className="rounded-[40px] border border-white/10 shadow-2xl rotate-2 hover:rotate-0 transition-all duration-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* SENDER */}
+              <section id="sender" className="py-24 relative">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="flex flex-col md:flex-row-reverse items-center gap-16">
+                    <div className={`md:w-1/2 fade-up ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <span className="text-green-400 font-bold tracking-widest uppercase text-sm border-b border-green-400 pb-1">
+                        {t('tag_sender')}
+                      </span>
+                      <h2 className="text-4xl md:text-6xl font-extrabold text-white mt-6 mb-6">
+                        {t('sender_title')}
+                      </h2>
+                      <p className="text-xl text-gray-400 mb-8 leading-relaxed">
+                        {t('sender_desc')}
+                        <br/>
+                        <span className="text-white mt-2 block text-lg font-medium">{t('sender_sub')}</span>
+                      </p>
+                      <button onClick={() => setShowModal(true)} className="bg-[#0A84FF] hover:bg-[#0060DF] text-white px-10 py-3.5 rounded-full font-bold transition-all shadow-lg shadow-blue-500/20 flex items-center gap-2 group">
+                        {t('sender_btn')}
+                        <ArrowRightIcon className={lang === 'ar' ? 'group-hover:-translate-x-1 inline-block' : 'group-hover:translate-x-1 inline-block'} />
+                      </button>
+                    </div>
+                    <div className="md:w-1/2 w-full fade-up">
+                      <img 
+                        src="https://images.unsplash.com/photo-1512418490979-92798cec1380?auto=format&fit=crop&q=80&w=2000" 
+                        alt="Sender" 
+                        className="rounded-[40px] border border-white/10 shadow-2xl -rotate-2 hover:rotate-0 transition-all duration-500"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* STATS */}
+              <section id="stats" className="py-24 relative border-t border-white/5 bg-[#050911]">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="text-center mb-16 fade-up">
+                    <h2 className="text-3xl font-bold text-white">{t('stats_title')}</h2>
+                  </div>
+                  <div className="grid md:grid-cols-3 gap-8">
+                    {[
+                      { val: '15.8B', label: 'stat1', color: 'text-blue-400' },
+                      { val: '92%', label: 'stat2', color: 'text-green-400' },
+                      { val: '78%', label: 'stat3', color: 'text-yellow-400' },
+                    ].map((stat, idx) => (
+                      <div key={idx} className="glass-card p-8 rounded-3xl text-center fade-up group">
+                        <h3 className={`text-5xl font-black mb-2 group-hover:scale-110 transition-transform ${stat.color}`}>{stat.val}</h3>
+                        <p className="text-gray-400 font-medium">{t(stat.label)}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* INVEST / CONTACT */}
+              <section id="invest" className="py-24 relative">
+                <div className="absolute inset-0 bg-gradient-to-b from-[#0B1220] to-[#050911] -z-10"></div>
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="text-center mb-16 fade-up">
+                    <h2 className="text-3xl md:text-5xl font-bold text-white mb-6">{t('invest_title')}</h2>
+                    <p className="text-gray-400 text-xl max-w-2xl mx-auto">{t('invest_desc')}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 fade-up">
+                    {[
+                      { icon: '💰', title: 'email1_title', desc: 'email1_desc', email: 'investors@faltah.tech', textColor: 'text-yellow-400', bg: 'bg-yellow-400/10' },
+                      { icon: '🤝', title: 'email2_title', desc: 'email2_desc', email: 'partners@faltah.tech', textColor: 'text-purple-400', bg: 'bg-purple-500/10' },
+                      { icon: '👋', title: 'email3_title', desc: 'email3_desc', email: 'hello@faltah.tech', textColor: 'text-green-400', bg: 'bg-green-500/10' },
+                    ].map((contact, idx) => (
+                      <a key={idx} href={`mailto:${contact.email}`} className="glass-card p-8 rounded-[24px] group hover:bg-white/5 transition-all border border-white/5 text-center block">
+                        <div className={`w-12 h-12 ${contact.bg} rounded-full flex items-center justify-center text-2xl mx-auto mb-4 group-hover:scale-110 transition-transform`}>
+                          {contact.icon}
+                        </div>
+                        <h3 className={`font-bold text-xl mb-2 ${contact.textColor}`}>{t(contact.title)}</h3>
+                        <p className="text-gray-400 text-sm mb-4">{t(contact.desc)}</p>
+                        <p className="text-white font-mono text-sm bg-white/5 py-2 rounded-lg ltr">{contact.email}</p>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </>
+          ) : (
+            <LegalPage type={currentPage} />
+          )}
+
+          {/* FOOTER */}
+          <footer className="border-t border-white/10 pt-16 pb-10 bg-[#050911]">
+            <div className="container mx-auto max-w-7xl px-6">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-8">
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl font-extrabold text-white">
+                    {lang === 'ar' ? 'فلته' : 'Faltah'}
+                  </span>
+                </div>
+                <div className="flex flex-wrap justify-center gap-8 text-sm font-medium text-gray-400">
+                  <a href="#" onClick={(e) => navigateTo('home', e)} className="hover:text-white transition-colors">{t('nav_features')}</a>
+                  <a href="#" onClick={(e) => navigateTo('privacy', e)} className="hover:text-white transition-colors">{t('footer_privacy')}</a>
+                  <a href="#" onClick={(e) => navigateTo('terms', e)} className="hover:text-white transition-colors">{t('footer_terms')}</a>
+                </div>
+              </div>
+              <div className="mt-12 pt-8 border-t border-white/5 text-center text-gray-600 text-xs">
+                <p>{t('footer_copy')}</p>
+              </div>
+            </div>
+          </footer>
+
+          {/* MODAL */}
+          {showModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-sm transition-opacity" onClick={() => setShowModal(false)}></div>
+              <div className="relative w-full max-w-2xl h-[80vh] bg-[#162032] border border-white/10 rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-white/10 bg-[#162032]">
+                  <h3 className="font-bold text-white text-lg">{t('modal_title')}</h3>
+                  <button onClick={() => setShowModal(false)} className="p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors">
+                    <XIcon />
+                  </button>
+                </div>
+                <div className="flex-1 w-full h-full bg-[#162032]">
+                  <iframe 
+                    src="https://tally.so/r/mekRol?transparentBackground=1&hideTitle=1" 
+                    className="w-full h-full border-0"
+                    title="Join Waitlist"
+                  ></iframe>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>
