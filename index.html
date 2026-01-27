@@ -7,7 +7,6 @@
   <meta name="description" content="فلته — منصة تربط المسافرين بالمرسلين للتوصيل بين المدن بأسلوب أذكى وأسرع وأوفر." />
   <link rel="icon" href="favicon.ico" />
 
-  <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
@@ -52,7 +51,6 @@
 <body class="bg-[#0B1220] text-[#EAF2FF]">
   <div id="root"></div>
 
-  <!-- React + ReactDOM + Babel -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -72,18 +70,7 @@
     const TrendingUpIcon = ({ className = "" }) => <span className={className}>📈</span>;
     const ArrowRightIcon = ({ className = "" }) => <span className={className}>→</span>;
     const LoaderIcon = ({ className = "" }) => <span className={"inline-block animate-spin " + className}>⏳</span>;
-    const FileTextIcon = ({ className = "" }) => <span className={className}>📄</span>;
-    const LockIcon = ({ className = "" }) => <span className={className}>🔒</span>;
-
-    /**
-     * SUPABASE CONFIGURATION
-     * Using REST API directly
-     */
-    const SUPABASE_CONFIG = {
-      url: 'https://actwsnbldlqqbkngsxjh.supabase.co',
-      key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdHdzbmJsZGxxcWJrbmdzeGpoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM1MzU2OTQsImV4cCI6MjA3OTExMTY5NH0.s2aNP94OLe5-iPG878UjwczjBjalVtf1HUWK-bwO7Sg'
-    };
-
+    
     /* ===== LEGAL CONTENT DATA ===== */
     const legalContent = {
       ar: {
@@ -329,8 +316,8 @@
       const [isMenuOpen, setIsMenuOpen] = useState(false);
       const [showModal, setShowModal] = useState(false);
       const [waitlistInput, setWaitlistInput] = useState('');
-      const [submitStatus, setSubmitStatus] = useState('idle'); // idle, loading, success, error
-      const [currentPage, setCurrentPage] = useState('home'); // home, privacy, terms
+      const [submitStatus, setSubmitStatus] = useState('idle'); 
+      const [currentPage, setCurrentPage] = useState('home');
       
       const t = (key) => translations[lang][key] || key;
 
@@ -356,6 +343,7 @@
 
       const toggleLang = () => setLang(prev => prev === 'ar' ? 'en' : 'ar');
 
+      // 🔥 دالة الإرسال المعدلة لـ Google Sheets
       const handleWaitlistSubmit = async () => {
         if (!waitlistInput.trim()) {
           setSubmitStatus('error');
@@ -364,34 +352,25 @@
 
         setSubmitStatus('loading');
 
+        // 👇 الرابط الجديد حقك
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyjuqZ552mTxIs_uDblkcvFnD3RHKge-hX5nS0kY5PkJIZDuFC9ZLBICWzdXLCY3aM_/exec";
+
         try {
-          const response = await fetch(`${SUPABASE_CONFIG.url}/rest/v1/waitlist`, {
+          await fetch(SCRIPT_URL, {
             method: 'POST',
+            mode: 'no-cors', // ⚠️ هذا السطر ضروري جداً
             headers: {
               'Content-Type': 'application/json',
-              'apikey': SUPABASE_CONFIG.key,
-              'Authorization': `Bearer ${SUPABASE_CONFIG.key}`,
-              'Prefer': 'return=minimal'
             },
             body: JSON.stringify({
-              contact: waitlistInput,
-              created_at: new Date().toISOString()
+              contact: waitlistInput
             })
           });
 
-          if (!response.ok) {
-            let errorData = {};
-            try {
-              errorData = await response.json();
-              console.error('Supabase Error Details:', errorData);
-            } catch (e) {
-              console.error('Supabase Error (no JSON body)');
-            }
-            throw new Error(errorData.message || 'Network error');
-          }
-
+          // بما أننا استخدمنا no-cors، نعتبر العملية ناجحة إذا وصل هنا
           setSubmitStatus('success');
           setWaitlistInput('');
+          
         } catch (error) {
           console.error('Submission Error:', error);
           setSubmitStatus('error');
