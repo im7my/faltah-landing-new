@@ -142,6 +142,7 @@
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+  <script src="./js/lang-utils.js"></script>
 
   <script type="text/babel">
     const { useState, useEffect } = React;
@@ -604,9 +605,7 @@
       }, [currentPage, lang]);
 
       const toggleLang = (e) => {
-        if (e) e.preventDefault();
-        setLang((prev) => (prev === 'ar' ? 'en' : 'ar'));
-        setIsMenuOpen(false);
+        toggleLangLogic(e, setLang, setIsMenuOpen);
       };
 
       const handleWaitlistSubmit = async (e) => {
