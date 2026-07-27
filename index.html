@@ -430,6 +430,10 @@
       </svg>
     );
 
+    const VerifiedIcon = () => (
+      <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"></path></svg>
+    );
+
     const AppMockupSender = ({ lang, t }) => (
       <div className="iphone-frame transform rotate-3 shadow-[0_30px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.1)] transition-transform duration-700 hover:rotate-0 hover:scale-[1.02]" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
         <div className="dynamic-island"></div>
@@ -456,11 +460,11 @@
                   <div className={`${lang === 'ar' ? 'text-right' : 'text-left'}`}>
                     <p className={`font-black text-base text-slate-900 flex items-center gap-1.5 ${lang === 'ar' ? 'justify-end' : 'justify-start'}`}>
                       {lang === 'ar' ? (
-                        <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"></path></svg>
+                        <VerifiedIcon />
                       ) : null}
                       {t('mockupsendername')}
                       {lang === 'en' ? (
-                        <svg className="w-4 h-4 text-blue-500" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"></path></svg>
+                        <VerifiedIcon />
                       ) : null}
                     </p>
 
