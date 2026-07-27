@@ -614,7 +614,7 @@
         if (!waitlistInput.trim()) return;
 
         setSubmitStatus('loading');
-        const SCRIPTURL = 'https://script.google.com/macros/s/AKfycb.../exec';
+        const SCRIPTURL = '/api/waitlist';
 
         try {
           await fetch(SCRIPTURL, {
