@@ -646,13 +646,14 @@
       const handleScrollLink = (id, e) => {
         e.preventDefault();
         setIsMenuOpen(false);
+        const scrollToTarget = () => {
+          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        };
         if (currentPage !== 'home') {
           setCurrentPage('home');
-          setTimeout(() => {
-            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
+          setTimeout(scrollToTarget, 100);
         } else {
-          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+          scrollToTarget();
         }
       };
 
