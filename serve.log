@@ -1,0 +1,10 @@
+npm warn exec The following package was not found and will be installed: serve@14.2.6
+ INFO  Accepting connections at http://localhost:3000
+ HTTP  7/27/2026 7:52:09 PM ::1 GET /
+ HTTP  7/27/2026 7:52:09 PM ::1 Returned 200 in 469 ms
+ HTTP  7/27/2026 7:52:09 PM ::1 GET /waitlist.js
+ HTTP  7/27/2026 7:52:09 PM ::1 Returned 200 in 4 ms
+ HTTP  7/27/2026 7:52:32 PM ::1 GET /
+ HTTP  7/27/2026 7:52:32 PM ::1 Returned 200 in 1 ms
+ HTTP  7/27/2026 7:52:32 PM ::1 GET /waitlist.js
+ HTTP  7/27/2026 7:52:32 PM ::1 Returned 200 in 2 ms
