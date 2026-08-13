@@ -143,6 +143,8 @@
   <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
 
+
+  <script src="./src/components/WaitlistForm.js"></script>
   <script type="text/babel">
     const { useState, useEffect } = React;
 
@@ -541,26 +543,6 @@
           <div className="home-indicator bg-white/30"></div>
         </div>
       </div>
-    );
-
-    const WaitlistForm = ({ waitlistInput, setWaitlistInput, submitStatus, onSubmit, t }) => (
-      <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3 w-full">
-        <input
-          type="text"
-          required
-          value={waitlistInput}
-          onChange={(e) => setWaitlistInput(e.target.value)}
-          placeholder={t('heroplaceholder')}
-          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white focus:border-blue-500 focus:outline-none focus:bg-white/10 transition-all min-w-0"
-        />
-        <button
-          type="submit"
-          disabled={submitStatus === 'loading'}
-          className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/25 whitespace-nowrap disabled:opacity-70 flex justify-center items-center"
-        >
-          {submitStatus === 'loading' ? <LoaderIcon /> : submitStatus === 'success' ? t('successmsg') : t('herobtn')}
-        </button>
-      </form>
     );
 
     function App() {
