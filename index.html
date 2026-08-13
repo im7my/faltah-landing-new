@@ -146,6 +146,8 @@
   <script type="text/babel">
     const { useState, useEffect } = React;
 
+    const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycb.../exec';
+
     const Icons = {
       LinkedIn: (
         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -614,10 +616,9 @@
         if (!waitlistInput.trim()) return;
 
         setSubmitStatus('loading');
-        const SCRIPTURL = 'https://script.google.com/macros/s/AKfycb.../exec';
 
         try {
-          await fetch(SCRIPTURL, {
+          await fetch(GOOGLE_SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
