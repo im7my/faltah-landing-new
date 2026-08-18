@@ -1,0 +1,14 @@
+{
+  "name": "faltah-app",
+  "version": "1.0.0",
+  "description": "Faltah App",
+  "main": "app.js",
+  "scripts": {
+    "build": "babel app.jsx -o app.js"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.23.0",
+    "@babel/core": "^7.23.0",
+    "@babel/preset-react": "^7.23.0"
+  }
+}
