@@ -615,13 +615,14 @@
 
         setSubmitStatus('loading');
         const SCRIPTURL = 'https://script.google.com/macros/s/AKfycb.../exec';
+        const sanitizedInput = waitlistInput.replace(/[<&>\"']/g, '');
 
         try {
           await fetch(SCRIPTURL, {
             method: 'POST',
             mode: 'no-cors',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ contact: waitlistInput })
+            body: JSON.stringify({ contact: sanitizedInput })
           });
 
           setSubmitStatus('success');
