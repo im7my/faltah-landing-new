@@ -611,7 +611,19 @@
 
       const handleWaitlistSubmit = async (e) => {
         if (e) e.preventDefault();
-        if (!waitlistInput.trim()) return;
+        const input = waitlistInput.trim();
+        if (!input) return;
+
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const phoneRegex = /^\+?[\d\s\-\(\)]{7,20}$/;
+
+        if (!emailRegex.test(input) && !phoneRegex.test(input)) {
+          const errorMsg = lang === 'ar'
+            ? 'الرجاء إدخال بريد إلكتروني أو رقم هاتف صحيح'
+            : 'Please enter a valid email address or phone number';
+          alert(errorMsg);
+          return;
+        }
 
         setSubmitStatus('loading');
         const SCRIPTURL = 'https://script.google.com/macros/s/AKfycb.../exec';
