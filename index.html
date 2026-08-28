@@ -1,6 +1,3 @@
-تم تحديث كود صفحة الهبوط بالكامل ليعتمد نطاق **`faltahapp.com`** وتوزيع بطاقات التواصل الأربع بالإيميلات الجديدة (`hello@`، `support@`، `operations@`، `partners@`):
-
-```html
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -35,6 +32,992 @@
       background: #000;
       border-radius: 50px;
       box-shadow: 0 0 0 2px #222, 0 0 0 6px #111, 0 0 0 8px #333, 0 30px 60px rgba(0,0,0,0.8);
+      position: relative;
+      overflow: hidden;
+      z-index: 10;
+    }
+
+    .iphone-frame::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -50%;
+      width: 200%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.03) 50%, rgba(255,255,255,0) 100%);
+      transform: rotate(30deg);
+      pointer-events: none;
+      z-index: 50;
+    }
+
+    .dynamic-island {
+      position: absolute;
+      top: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 110px;
+      height: 32px;
+      background: #000;
+      border-radius: 20px;
+      z-index: 40;
+    }
+
+    .home-indicator {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      height: 4px;
+      background: rgba(255,255,255,0.4);
+      border-radius: 10px;
+      z-index: 40;
+    }
+
+    .app-screen {
+      width: 100%;
+      height: 100%;
+      background: #F2F2F7;
+      color: #000;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s;
+      opacity: 0;
+    }
+
+    .faq-item.active .faq-answer {
+      max-height: 300px;
+      opacity: 1;
+      margin-top: 1rem;
+    }
+
+    .faq-icon {
+      transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-icon {
+      transform: rotate(180deg);
+    }
+
+    .fade-up {
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .fade-up.is-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .glass-header {
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: saturate(180%) blur(20px);
+      -webkit-backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+
+    @keyframes float1 {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+
+    @keyframes float2 {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(20px); }
+    }
+  </style>
+</head>
+<body class="selection:bg-blue-500/30">
+  <div id="root"></div>
+
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+  <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.3/babel.min.js"></script>
+
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+
+    const Icons = {
+      LinkedIn: (
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+        </svg>
+      ),
+      ArrowLeft: (
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+      ),
+      Menu: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      ),
+      X: (
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      ),
+      Globe: (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+      ),
+      ChevronDown: (
+        <svg className="faq-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      )
+    };
+
+    const BrandLogo = ({ onClick }) => (
+      <div onClick={onClick} className="flex items-center gap-2 z-50 group cursor-pointer" dir="ltr">
+        <div className="flex flex-col text-right">
+          <span className="text-2xl font-black text-white tracking-tight leading-none mb-1">
+            فلته<span className="text-blue-500">.</span>
+          </span>
+          <span className="text-[10px] text-blue-400 font-bold tracking-widest uppercase leading-none font-en">Faltah App</span>
+        </div>
+      </div>
+    );
+
+    const translations = {
+      ar: {
+        navfeatures: 'المميزات',
+        navhow: 'كيف تعمل',
+        navtravelers: 'المسافرين',
+        navsenders: 'المرسلين',
+        navcontact: 'تواصل معنا',
+        navjoin: 'انضم الآن',
+        herobadge: 'قريباً 🚀',
+        herotitle1: 'شحنتك...',
+        herotitle2: 'أسرع من أي وقت.',
+        herodesc: 'تطبيق فلتة يحول المشاوير اليومية بين المدن إلى شبكة توصيل ذكية وفورية. أرسل أغراضك أو استثمر مقاعد سيارتك وحقق دخلًا إضافيًا بسهولة.',
+        heroplaceholder: 'أدخل رقم جوالك أو بريدك الإلكتروني...',
+        herobtn: 'انضم الآن',
+        heroproof: 'انضم أكثر من 10,000 مستخدم لقائمة الانتظار',
+        feattitle: 'مصمم لراحتك',
+        featsub: 'تجربة لوجستية متكاملة بضغطة زر داخل التطبيق.',
+        feat1t: 'تسعير ثابت وآلي',
+        feat1d: 'بدون تفاوض أو مزايدات. يحسب التطبيق السعر العادل فوراً بناءً على المسافة الحقيقية.',
+        feat2t: 'تتبع مباشر ولحظي',
+        feat2d: 'شاهد مسار الشحنة وحركة الكابتن على الخريطة لحظة بلحظة من الاستلام وحتى التسليم.',
+        feat3t: 'محفظة مالية مدمجة',
+        feat3d: 'تودع أرباح المشوار فور إتمام التسليم وتأكيد الرمز مباشرة في محفظتك مع سحب فوري.',
+        rolesenderbadge: 'واجهة المرسل',
+        rolesendert1: 'أرسل أغراضك خلال',
+        rolesendert2: 'دقائق معدودة.',
+        rolesenderdesc: 'شحنتك لا تنتظر في المستودعات أو مراكز الفرز، بل تنطلق مباشرة مع مسافر متوجه إلى نفس الوجهة.',
+        rolesenderp1t: 'توصيل في نفس اليوم',
+        rolesenderp1d: 'استلم شحنتك خلال ساعات وبسرعة فائقة بين كافة مدن المملكة.',
+        rolesenderp2t: 'أمان وتوثيق وطني',
+        rolesenderp2d: 'جميع المسافرين موثقون عبر منصة نفاذ مع نظام التحقق برمز OTP عند التسليم.',
+        roletravbadge: 'واجهة المسافر',
+        roletravt1: 'مشوارك المعتاد،',
+        roletravt2: 'صار مصدر دخل.',
+        roletravdesc: 'فعّل وضع المسافر واستقبل طلبات التوصيل المتطابقة مع خط سيرك لتغطية تكاليف الوقود وزيادة أرباحك.',
+        roletravp1t: 'أرباح نقدية فورية',
+        roletravp1d: 'بمجرد تسليم الطرد وتأكيد الرمز، تضاف مستحقاتك فوراً إلى محفظتك مع إمكانية السحب البنكي.',
+        roletravbtn: 'سجّل كمسافر',
+        contacttitle: 'تواصل مع فريق فلتة',
+        contactsub: 'قنوات اتصال مخصصة وسريعة للرد على كافة استفساراتكم وعمليات التشغيل.',
+        contactc1t: 'الاستفسارات العامة',
+        contactc1d: 'للاستفسارات العامة والترحيب بالعملاء.',
+        contactc2t: 'خدمة العملاء والدعم',
+        contactc2d: 'مساعدة مباشرة للمرسلين والمسافرين وحل المشكلات.',
+        contactc3t: 'إدارة العمليات والتشغيل',
+        contactc3d: 'لمتابعة الرحلات والتنسيق اللوجستي المباشر.',
+        contactc4t: 'الشراكات والمتاجر',
+        contactc4d: 'لتكامل المتاجر الإلكترونية وحلول قطاع الأعمال.',
+        faqtitle: 'الأسئلة الشائعة',
+        faqsub: 'كل ما تود معرفته عن آلية العمل، الموثوقية والأمان.',
+        footerdesc: 'الجيل القادم من الخدمات اللوجستية التشاركية في المملكة العربية السعودية. أسرع وأأمن شبكة توصيل بين المدن.',
+        footerlinks: 'روابط سريعة',
+        footercompany: 'الشركة',
+        terms: 'الشروط والأحكام',
+        privacy: 'سياسة الخصوصية',
+        copyright: '© 2026 تطبيق فلتة (Faltah App). جميع الحقوق محفوظة. صُنع في 🇸🇦',
+        modaltitle: 'إشعار الإطلاق',
+        modaldesc: 'سجّل بياناتك لتكون أول من يحصل على رابط تحميل التطبيق ورصيد ترحيبي فور اعتماده.',
+        modalbtn: 'تأكيد التسجيل',
+        successmsg: 'تم التسجيل بنجاح! 🎉',
+        mockupsendertitle: 'تأكيد الطلب',
+        mockupsenderdriver: 'بيانات المسافر',
+        mockupsendername: 'محمد السالم',
+        mockupsenderotp: 'رمز التسليم OTP',
+        mockupsenderotpwarn: 'لا تشارك الرمز قبل استلام الشحنة',
+        mockupsenderbtn: 'تتبع المسار مباشر',
+        mockuptravtitle: 'المحفظة',
+        mockuptravbalance: 'الرصيد المتاح',
+        mockuptravcurrency: 'ريال',
+        mockuptravtransfer: 'تحويل إلى الحساب البنكي',
+        mockuptravrecent: 'آخر العمليات',
+        mockuptravall: 'الكل',
+        mockuptravtrip: 'توصيل إلى الرياض',
+        mockuptravtime: 'اليوم، 04:30 م'
+      },
+      en: {
+        navfeatures: 'Features',
+        navhow: 'How it works',
+        navtravelers: 'Travelers',
+        navsenders: 'Senders',
+        navcontact: 'Contact Us',
+        navjoin: 'Join Now',
+        herobadge: 'Coming Soon 🚀',
+        herotitle1: 'Your shipment..',
+        herotitle2: 'Faster than ever.',
+        herodesc: 'Faltah transforms daily intercity trips into a smart, rapid logistics network. Send packages or monetize empty seats effortlessly.',
+        heroplaceholder: 'Enter your phone or email...',
+        herobtn: 'Join Now',
+        heroproof: 'Over 10,000+ users joined the waitlist',
+        feattitle: 'Designed For You',
+        featsub: 'A seamless peer-to-peer delivery experience in one mobile app.',
+        feat1t: 'Automated Fixed Pricing',
+        feat1d: 'No price haggling. Instant transparent pricing based on verified travel distance.',
+        feat2t: 'Live Real-time Tracking',
+        feat2d: 'Watch your items move on the live map from the moment of pickup to safe delivery.',
+        feat3t: 'Instant Digital Wallet',
+        feat3d: 'Earnings are deposited directly to your in-app wallet immediately after OTP confirmation.',
+        rolesenderbadge: 'Sender Mode',
+        rolesendert1: 'Send packages in',
+        rolesendert2: 'mere minutes.',
+        rolesenderdesc: 'Packages do not wait in sorting hubs; they depart directly with verified drivers going that way.',
+        rolesenderp1t: 'Same-Day Delivery',
+        rolesenderp1d: 'Fastest transit times across Saudi Arabia, delivered within hours.',
+        rolesenderp2t: 'National ID Verified',
+        rolesenderp2d: 'Identity verification via Nafath and end-to-end OTP security passcodes.',
+        roletravbadge: 'Traveler Mode',
+        roletravt1: 'Your daily route,',
+        roletravt2: 'is your new income.',
+        roletravdesc: 'Turn empty trunk space into profit by delivering packages along your existing route.',
+        roletravp1t: 'Instant Payouts',
+        roletravp1d: 'Receive funds directly in your wallet with seamless local bank withdrawals.',
+        roletravbtn: 'Join as Traveler',
+        contacttitle: 'Contact Faltah Team',
+        contactsub: 'Dedicated communication channels for quick assistance and operations.',
+        contactc1t: 'General Inquiries',
+        contactc1d: 'General questions and customer welcomes.',
+        contactc2t: 'Customer Support',
+        contactc2d: 'Direct help for senders, travelers, and dispute resolution.',
+        contactc3t: 'Operations & Logistics',
+        contactc3d: 'Trip coordination, transit monitoring, and fleet management.',
+        contactc4t: 'Strategic Partnerships',
+        contactc4d: 'For e-commerce merchants and enterprise business solutions.',
+        faqtitle: 'Frequently Asked Questions',
+        faqsub: 'Clear answers on reliability, verification, and operations.',
+        footerdesc: 'Next-generation peer-to-peer crowdshipping in Saudi Arabia. The fastest and safest intercity delivery network.',
+        footerlinks: 'Quick Links',
+        footercompany: 'Company',
+        terms: 'Terms & Conditions',
+        privacy: 'Privacy Policy',
+        copyright: '© 2026 Faltah App. All rights reserved. Made in KSA 🇸🇦',
+        modaltitle: 'Early Access Alert',
+        modaldesc: 'Leave your contact info to get priority download links and welcome credits.',
+        modalbtn: 'Confirm Access',
+        successmsg: 'Registered Successfully! 🎉',
+        mockupsendertitle: 'Trip Details',
+        mockupsenderdriver: 'Verified Traveler',
+        mockupsendername: 'Mohammed Alsalem',
+        mockupsenderotp: 'Delivery OTP Code',
+        mockupsenderotpwarn: 'Share only when receiving your package',
+        mockupsenderbtn: 'Track Route Live',
+        mockuptravtitle: 'Wallet Balance',
+        mockuptravbalance: 'Available to Withdraw',
+        mockuptravcurrency: 'SAR',
+        mockuptravtransfer: 'Transfer to Bank',
+        mockuptravrecent: 'Recent Trips',
+        mockuptravall: 'View All',
+        mockuptravtrip: 'Delivery to Riyadh',
+        mockuptravtime: 'Today, 04:30 PM'
+      }
+    };
+
+    const faqData = {
+      ar: [
+        {
+          q: 'كيف يضمن تطبيق فلتة مستحقات المسافر؟',
+          a: 'يدفع المرسل مقدماً داخل التطبيق وتُحفظ الأموال بأمان، ولا تُحوّل إلى محفظة المسافر إلا بعد إدخال رمز التحقق (OTP) المسلّم للمستلم.'
+        },
+        {
+          q: 'هل يتم فحص وتوثيق الشحنات والمسافرين؟',
+          a: 'نعم، جميع المستخدمين موثقون رسمياً عبر منصة نفاذ الوطنية، مع اشتراط تصوير وفحص الشحنة المفتوحة قبل استلامها لضمان مطابقتها للأنظمة.'
+        },
+        {
+          q: 'ماذا يحدث في حال تأخر المسافر أو إلغاء الرحلة؟',
+          a: 'يتيح النظام استرجاع المبالغ فوراً عند الإلغاء، مع متابعة لحظية من فريق العمليات على مدار 24 ساعة لأي تأخير غير مبرر.'
+        }
+      ],
+      en: [
+        {
+          q: 'How does Faltah guarantee traveler earnings?',
+          a: 'Senders pay securely upfront. Funds are held safely and instantly released to the traveler wallet upon OTP verification.'
+        },
+        {
+          q: 'How are packages and travelers verified?',
+          a: 'All users are verified via Nafath. Travelers must inspect and photograph open packages before pickup to guarantee safety.'
+        },
+        {
+          q: 'What happens if a trip is delayed or cancelled?',
+          a: 'Automated refunds are provided for cancellations, with 24/7 operations monitoring to resolve any delays.'
+        }
+      ]
+    };
+
+    const legalContent = {
+      ar: {
+        privacy: {
+          title: 'سياسة الخصوصية',
+          date: 'آخر تحديث: 2026',
+          sections: [
+            { title: '1. جمع البيانات', body: 'نجمع البيانات الأساسية لتأكيد الهوية (الاسم، الجوال، التوثيق عبر نفاذ) وبيانات الموقع الجغرافي لتشغيل التتبع اللحظي.' },
+            { title: '2. استخدام البيانات', body: 'تُستخدم البيانات لربط المرسلين بالمسافرين وتأمين الشحنات والامتثال للأنظمة واللوائح اللوجستية بالمملكة.' },
+            { title: '3. حماية البيانات', body: 'تخضع كافة البيانات لأحدث بروتوكولات الأمان السحابية ولا يتم بيعها أو مشاركتها لأغراض تسويقية.' }
+          ]
+        },
+        terms: {
+          title: 'الشروط والأحكام',
+          date: 'آخر تحديث: 2026',
+          sections: [
+            { title: '1. الأهلية والقبول', body: 'استخدام التطبيق متاح لمن هم في سن 18 عاماً فما فوق مع حساب موثق.' },
+            { title: '2. المواد المحظورة', body: 'يُحظر منعاً باتاً نقل المواد المخالفة للأنظمة كالمواد القابلة للاشتعال والممنوعات ويتحمل الأطراف المسؤولية النظامية.' },
+            { title: '3. الوساطة التقنية', body: 'فلتة منصة تقنية ووسيط ذكي يربط المرسلين بالمسافرين وفق سياسات وضوابط التحقق الإلكتروني.' }
+          ]
+        }
+      },
+      en: {
+        privacy: {
+          title: 'Privacy Policy',
+          date: 'Last updated: 2026',
+          sections: [
+            { title: '1. Data Collection', body: 'We collect essential verification details (Name, Phone, Nafath ID) and real-time location data for live tracking.' },
+            { title: '2. Data Usage', body: 'Information is utilized to match trips, execute secure deliveries, and comply with Saudi regulations.' },
+            { title: '3. Data Security', body: 'We maintain enterprise-grade encryption and do not share personal information with third parties.' }
+          ]
+        },
+        terms: {
+          title: 'Terms of Service',
+          date: 'Last updated: 2026',
+          sections: [
+            { title: '1. Eligibility', body: 'Users must be 18+ and possess a verified national identity.' },
+            { title: '2. Prohibited Goods', body: 'Transporting illegal, hazardous, or restricted goods under Saudi Arabian law is strictly forbidden.' },
+            { title: '3. Technical Intermediary', body: 'Faltah operates as an intelligent peer-to-peer crowdshipping platform connecting verified parties.' }
+          ]
+        }
+      }
+    };
+
+    const LoaderIcon = () => (
+      <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+    );
+
+    const AppMockupSender = ({ lang, t }) => (
+      <div className="iphone-frame transform rotate-2 shadow-[0_30px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.1)] transition-transform duration-700 hover:rotate-0 hover:scale-[1.02]" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="dynamic-island"></div>
+        <div className="app-screen pt-14 px-5 pb-6 relative bg-[#F8FAFC]">
+          <div className="flex items-center justify-between mb-6 z-10 relative">
+            <h3 className="font-black text-2xl text-slate-900 tracking-tight">{t('mockupsendertitle')}</h3>
+          </div>
+
+          <div className="relative z-10 flex flex-col h-full">
+            <div className="bg-white p-5 rounded-[28px] shadow-[0_10px_40px_rgba(0,0,0,0.06)] border border-slate-100 mb-5 relative overflow-hidden">
+              <div className={`absolute top-0 w-24 h-24 bg-blue-50 pointer-events-none opacity-50 ${lang === 'ar' ? 'right-0 rounded-bl-[100px]' : 'left-0 rounded-br-[100px]'}`}></div>
+
+              <p className={`text-[12px] text-slate-400 mb-3 font-bold tracking-wider ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{t('mockupsenderdriver')}</p>
+
+              <div className="flex items-center justify-between relative z-10">
+                <div className="flex items-center gap-4">
+                  <div className="relative">
+                    <div className="w-14 h-14 bg-gradient-to-tr from-blue-100 to-white rounded-full flex items-center justify-center border-2 border-blue-200 overflow-hidden p-0.5">
+                      <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?q=80&w=200&auto=format&fit=crop" alt="captain" className="w-full h-full object-cover rounded-full" />
+                    </div>
+                    <div className={`absolute bottom-0 w-4 h-4 bg-green-500 border-2 border-white rounded-full shadow-sm ${lang === 'ar' ? 'right-0' : 'left-0'}`}></div>
+                  </div>
+
+                  <div className={`${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                    <p className={`font-black text-base text-slate-900 flex items-center gap-1.5 ${lang === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                      {t('mockupsendername')}
+                      <svg className="w-4 h-4 text-blue-500 inline" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2zm-1.9 14.7L6 12.6l1.5-1.5 2.6 2.6 6.4-6.4 1.5 1.5-7.9 7.9z"></path></svg>
+                    </p>
+
+                    <div className={`flex items-center gap-1.5 mt-1 ${lang === 'ar' ? 'justify-end' : 'justify-start'}`}>
+                      <span className="text-[12px] font-bold text-slate-800">4.95</span>
+                      <span className="text-amber-400 text-sm">★</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-gradient-to-br from-blue-600 via-blue-700 to-indigo-800 p-6 rounded-[32px] shadow-[0_20px_40px_rgba(10,132,255,0.3)] mb-auto relative overflow-hidden">
+              <p className="text-white/80 text-[12px] font-bold tracking-widest text-center mb-5 relative z-10">{t('mockupsenderotp')}</p>
+
+              <div className="flex justify-center gap-3.5 mb-6 relative z-10" dir="ltr">
+                {[5, 1, 8, 3].map((num, idx) => (
+                  <div key={idx} className="w-14 h-16 bg-white/15 backdrop-blur-xl border border-white/30 rounded-[18px] flex items-center justify-center text-4xl font-black text-white shadow-inner">
+                    {num}
+                  </div>
+                ))}
+              </div>
+
+              <div className="bg-black/20 backdrop-blur-sm py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 border border-white/10 w-fit mx-auto relative z-10">
+                <span className="text-[11px] font-bold text-white/90">{t('mockupsenderotpwarn')}</span>
+              </div>
+
+              <button className="w-full bg-slate-900 text-white py-4 rounded-[20px] font-black mt-5 shadow-lg hover:bg-black transition-all">
+                {t('mockupsenderbtn')}
+              </button>
+            </div>
+          </div>
+
+          <div className="home-indicator bg-black"></div>
+        </div>
+      </div>
+    );
+
+    const AppMockupTraveler = ({ lang, t }) => (
+      <div className="iphone-frame transform -rotate-2 shadow-[0_30px_60px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.1)] transition-transform duration-700 hover:rotate-0 hover:scale-[1.02]" dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <div className="dynamic-island"></div>
+
+        <div className="app-screen bg-[#07090E] text-white pt-14 px-5 pb-6">
+          <div className="flex items-center justify-between mb-8 z-10 relative">
+            <h3 className="font-black text-2xl text-white tracking-tight">{t('mockuptravtitle')}</h3>
+          </div>
+
+          <div className="bg-gradient-to-br from-slate-800/80 via-slate-900 to-black p-7 rounded-[32px] mb-8 shadow-2xl border border-white/10 relative overflow-hidden">
+            <p className={`text-slate-400 text-sm mb-2 font-medium relative z-10 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{t('mockuptravbalance')}</p>
+
+            <div className={`flex items-baseline gap-2 mb-8 relative z-10 ${lang === 'ar' ? 'justify-end' : 'justify-start'}`} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+              <h2 className="text-5xl font-black text-white tracking-tight">580</h2>
+              <span className="text-xl text-green-400 font-bold">{t('mockuptravcurrency')}</span>
+            </div>
+
+            <button className="w-full bg-blue-600 hover:bg-blue-500 text-white font-black py-4 rounded-2xl text-sm shadow-lg transition-colors relative z-10">
+              {t('mockuptravtransfer')}
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between mb-5">
+            <h4 className="font-bold text-lg text-white">{t('mockuptravrecent')}</h4>
+            <span className="text-xs text-blue-400 font-bold">{t('mockuptravall')}</span>
+          </div>
+
+          <div className="space-y-4">
+            <div className="bg-[#12161F] border border-white/5 p-4 rounded-[20px] flex justify-between items-center">
+              <div className={`flex items-center gap-4 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                <div>
+                  <p className="font-bold text-sm text-white mb-1">{t('mockuptravtrip')}</p>
+                  <p className="text-[11px] text-gray-500 font-medium">{t('mockuptravtime')}</p>
+                </div>
+              </div>
+              <span className="text-green-400 font-black text-lg" dir="ltr">+95</span>
+            </div>
+          </div>
+
+          <div className="home-indicator bg-white/30"></div>
+        </div>
+      </div>
+    );
+
+    const WaitlistForm = ({ waitlistInput, setWaitlistInput, submitStatus, onSubmit, t }) => (
+      <form onSubmit={onSubmit} className="flex flex-col sm:flex-row gap-3 w-full">
+        <input
+          type="text"
+          required
+          value={waitlistInput}
+          onChange={(e) => setWaitlistInput(e.target.value)}
+          placeholder={t('heroplaceholder')}
+          className="flex-1 bg-white/5 border border-white/10 rounded-xl px-5 py-4 text-white focus:border-blue-500 focus:outline-none focus:bg-white/10 transition-all min-w-0"
+        />
+        <button
+          type="submit"
+          disabled={submitStatus === 'loading'}
+          className="bg-blue-600 text-white px-8 py-4 rounded-xl font-bold hover:bg-blue-500 transition-colors shadow-lg shadow-blue-500/25 whitespace-nowrap disabled:opacity-70 flex justify-center items-center"
+        >
+          {submitStatus === 'loading' ? <LoaderIcon /> : submitStatus === 'success' ? t('successmsg') : t('herobtn')}
+        </button>
+      </form>
+    );
+
+    function App() {
+      const [lang, setLang] = useState('ar');
+      const [isMenuOpen, setIsMenuOpen] = useState(false);
+      const [showModal, setShowModal] = useState(false);
+      const [scrolled, setScrolled] = useState(false);
+      const [currentPage, setCurrentPage] = useState('home');
+      const [openFaq, setOpenFaq] = useState(null);
+      const [waitlistInput, setWaitlistInput] = useState('');
+      const [submitStatus, setSubmitStatus] = useState('idle');
+
+      const t = (key) => translations[lang][key] || key;
+
+      useEffect(() => {
+        document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+        document.documentElement.lang = lang;
+      }, [lang]);
+
+      useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener('scroll', handleScroll);
+
+        const setupObserver = () => {
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) entry.target.classList.add('is-visible');
+            });
+          }, { threshold: 0.1 });
+
+          document.querySelectorAll('.fade-up').forEach((el) => observer.observe(el));
+          return observer;
+        };
+
+        const observer = setupObserver();
+
+        return () => {
+          window.removeEventListener('scroll', handleScroll);
+          observer.disconnect();
+        };
+      }, [currentPage, lang]);
+
+      const toggleLang = (e) => {
+        if (e) e.preventDefault();
+        setLang((prev) => (prev === 'ar' ? 'en' : 'ar'));
+        setIsMenuOpen(false);
+      };
+
+      const handleWaitlistSubmit = async (e) => {
+        if (e) e.preventDefault();
+        if (!waitlistInput.trim()) return;
+
+        setSubmitStatus('loading');
+        const SCRIPTURL = 'https://script.google.com/macros/s/AKfycb.../exec';
+
+        try {
+          await fetch(SCRIPTURL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 
+              contact: waitlistInput,
+              date: new Date().toISOString()
+            })
+          });
+
+          setSubmitStatus('success');
+          setWaitlistInput('');
+          setTimeout(() => {
+            setSubmitStatus('idle');
+            setShowModal(false);
+          }, 3000);
+        } catch (error) {
+          console.error('Waitlist error:', error);
+          setSubmitStatus('success');
+          setWaitlistInput('');
+          setTimeout(() => {
+            setSubmitStatus('idle');
+            setShowModal(false);
+          }, 3000);
+        }
+      };
+
+      const navigateTo = (page, e) => {
+        if (e) e.preventDefault();
+        setCurrentPage(page);
+        setIsMenuOpen(false);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      };
+
+      const handleScrollLink = (id, e) => {
+        e.preventDefault();
+        setIsMenuOpen(false);
+        if (currentPage !== 'home') {
+          setCurrentPage('home');
+          setTimeout(() => {
+            document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+          }, 100);
+        } else {
+          document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+        }
+      };
+
+      const renderLegalPage = () => {
+        const data = legalContent[lang][currentPage];
+        if (!data) return null;
+
+        return (
+          <main className="pt-40 pb-24 min-h-[80vh] relative z-10">
+            <div className="container mx-auto max-w-3xl px-6 fade-up">
+              <button onClick={(e) => navigateTo('home', e)} className="flex items-center gap-2 text-blue-500 hover:text-blue-400 mb-8 font-bold transition-colors w-fit">
+                <span className={lang === 'ar' ? 'rotate-180' : ''}>{Icons.ArrowLeft}</span>
+                {lang === 'ar' ? 'العودة للرئيسية' : 'Back to Home'}
+              </button>
+
+              <h1 className="text-4xl md:text-5xl font-black text-white mb-4">{data.title}</h1>
+              <p className="text-gray-500 mb-12 font-medium">{data.date}</p>
+
+              <div className="space-y-8">
+                {data.sections.map((sec, i) => (
+                  <div key={i} className="bg-[#0E121A] border border-white/5 p-8 rounded-[32px]">
+                    <h3 className="text-xl font-bold text-white mb-4">{sec.title}</h3>
+                    <p className="text-gray-400 leading-relaxed text-[15px]">{sec.body}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </main>
+        );
+      };
+
+      return (
+        <div className={lang === 'en' ? 'font-en' : ''}>
+          {/* Navigation Bar */}
+          <nav className={`fixed w-full top-0 z-50 transition-all duration-300 ${scrolled ? 'glass-header py-3.5' : 'bg-transparent py-5'}`}>
+            <div className="container mx-auto max-w-7xl px-6 flex justify-between items-center">
+              <BrandLogo onClick={(e) => navigateTo('home', e)} />
+
+              <div className="hidden md:flex items-center gap-8 text-sm font-bold text-gray-300">
+                <a href="#features" onClick={(e) => handleScrollLink('features', e)} className="hover:text-white transition-colors">{t('navfeatures')}</a>
+                <a href="#roles" onClick={(e) => handleScrollLink('roles', e)} className="hover:text-white transition-colors">{t('navhow')}</a>
+                <a href="#contact" onClick={(e) => handleScrollLink('contact', e)} className="hover:text-white transition-colors">{t('navcontact')}</a>
+                <a href="#faq" onClick={(e) => handleScrollLink('faq', e)} className="hover:text-white transition-colors">{t('faqtitle')}</a>
+              </div>
+
+              <div className="flex items-center gap-4 z-50">
+                <button onClick={toggleLang} className="hidden md:flex items-center gap-2 text-white bg-white/5 border border-white/10 px-4 py-2 rounded-full text-sm font-bold hover:bg-white/10 transition-colors font-en">
+                  {lang === 'ar' ? 'English' : 'العربية'}
+                  {Icons.Globe}
+                </button>
+
+                <button onClick={() => setShowModal(true)} className="hidden md:flex bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold text-sm hover:bg-blue-500 transition-colors shadow-lg shadow-blue-600/20">
+                  {t('navjoin')}
+                </button>
+
+                <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white focus:outline-none">
+                  {isMenuOpen ? Icons.X : Icons.Menu}
+                </button>
+              </div>
+            </div>
+          </nav>
+
+          {/* Mobile Menu */}
+          {isMenuOpen && (
+            <div className="fixed inset-0 bg-black/95 z-40 pt-28 px-6 md:hidden">
+              <div className={`flex flex-col gap-6 text-xl font-bold text-white ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                <a href="#features" onClick={(e) => handleScrollLink('features', e)} className="border-b border-white/10 pb-3">{t('navfeatures')}</a>
+                <a href="#roles" onClick={(e) => handleScrollLink('roles', e)} className="border-b border-white/10 pb-3">{t('navhow')}</a>
+                <a href="#contact" onClick={(e) => handleScrollLink('contact', e)} className="border-b border-white/10 pb-3">{t('navcontact')}</a>
+                <a href="#faq" onClick={(e) => handleScrollLink('faq', e)} className="border-b border-white/10 pb-3">{t('faqtitle')}</a>
+                <button onClick={(e) => navigateTo('terms', e)} className={`border-b border-white/10 pb-3 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{t('terms')}</button>
+                <button onClick={(e) => navigateTo('privacy', e)} className={`border-b border-white/10 pb-3 ${lang === 'ar' ? 'text-right' : 'text-left'}`}>{t('privacy')}</button>
+
+                <button onClick={toggleLang} className={`flex items-center gap-2 font-en pt-2 ${lang === 'ar' ? 'justify-end flex-row-reverse' : 'justify-start'}`}>
+                  {lang === 'ar' ? 'English' : 'العربية'}
+                  {Icons.Globe}
+                </button>
+
+                <button onClick={() => { setShowModal(true); setIsMenuOpen(false); }} className="bg-blue-600 py-4 rounded-xl mt-4 text-white text-center w-full font-bold">
+                  {t('navjoin')}
+                </button>
+              </div>
+            </div>
+          )}
+
+          {currentPage === 'home' ? (
+            <main>
+              {/* Hero Section */}
+              <section className="pt-32 pb-20 lg:pt-48 lg:pb-32 relative min-h-[90vh] flex items-center">
+                <div className="absolute top-12 left-12 -translate-x-12 -translate-y-12 w-[600px] h-[600px] bg-blue-600/15 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div className="container mx-auto max-w-7xl px-6 relative z-10">
+                  <div className="flex flex-col lg:flex-row items-center gap-16">
+                    <div className={`lg:w-1/2 text-center fade-up ${lang === 'ar' ? 'lg:text-right' : 'lg:text-left'}`}>
+                      <div className="inline-block bg-blue-500/10 border border-blue-500/20 px-4 py-1.5 rounded-full text-blue-400 text-xs font-bold mb-6 backdrop-blur-sm">
+                        {t('herobadge')}
+                      </div>
+
+                      <h1 className="text-5xl lg:text-7xl font-black text-white leading-[1.2] mb-6">
+                        {t('herotitle1')}
+                        <br />
+                        <span className="text-blue-500">{t('herotitle2')}</span>
+                      </h1>
+
+                      <p className={`text-lg lg:text-xl text-gray-400 mb-10 max-w-lg leading-relaxed ${lang === 'ar' ? 'lg:mx-0 lg:mr-auto lg:ml-0' : 'lg:mx-0'}`}>
+                        {t('herodesc')}
+                      </p>
+
+                      <div className={`max-w-md ${lang === 'ar' ? 'lg:mx-0 lg:mr-auto lg:ml-0' : 'lg:mx-0'}`}>
+                        <WaitlistForm
+                          waitlistInput={waitlistInput}
+                          setWaitlistInput={setWaitlistInput}
+                          submitStatus={submitStatus}
+                          onSubmit={handleWaitlistSubmit}
+                          t={t}
+                        />
+
+                        <p className={`text-xs text-gray-500 mt-4 font-medium flex items-center justify-center gap-2 ${lang === 'ar' ? 'lg:justify-start' : 'lg:justify-start'}`}>
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                          </span>
+                          {t('heroproof')}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className={`lg:w-1/2 relative h-[650px] w-full flex justify-center fade-up ${lang === 'ar' ? 'lg:justify-end' : 'lg:justify-start'}`}>
+                      <div className="relative z-20" style={{ animation: 'float1 6s ease-in-out infinite' }}>
+                        <AppMockupSender lang={lang} t={t} />
+                      </div>
+                      <div className={`absolute top-10 z-10 opacity-70 hidden md:block ${lang === 'ar' ? '-right-24' : '-left-24'}`} style={{ animation: 'float2 7s ease-in-out infinite' }}>
+                        <AppMockupTraveler lang={lang} t={t} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Features Section */}
+              <section id="features" className="py-24 bg-[#07090E] border-y border-white/5">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <div className="text-center mb-16 fade-up">
+                    <h2 className="text-3xl lg:text-5xl font-black mb-4">{t('feattitle')}</h2>
+                    <p className="text-gray-400 text-lg">{t('featsub')}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {[
+                      { title: t('feat1t'), desc: t('feat1d'), icon: '⚡' },
+                      { title: t('feat2t'), desc: t('feat2d'), icon: '📍' },
+                      { title: t('feat3t'), desc: t('feat3d'), icon: '💳' }
+                    ].map((f, i) => (
+                      <div key={i} className="bg-[#0E121A] p-8 rounded-[32px] border border-white/5 fade-up hover:border-blue-500/30 transition-all hover:-translate-y-1">
+                        <div className="text-3xl mb-6 bg-white/5 w-16 h-16 rounded-2xl flex items-center justify-center border border-white/10">{f.icon}</div>
+                        <h3 className="text-xl font-bold mb-3 text-white">{f.title}</h3>
+                        <p className="text-gray-400 leading-relaxed text-sm">{f.desc}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* Roles Section */}
+              <section id="roles" className="py-32 relative overflow-hidden">
+                <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none"></div>
+                <div className="absolute bottom-20 left-0 w-[500px] h-[500px] bg-green-500/10 rounded-full blur-[120px] pointer-events-none"></div>
+
+                <div className="container mx-auto max-w-7xl px-6 relative z-10">
+                  {/* Sender View */}
+                  <div className="flex flex-col md:flex-row items-center gap-16 lg:gap-24 mb-40">
+                    <div className={`md:w-1/2 fade-up ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-blue-500/10 border border-blue-500/30 text-blue-400 font-bold text-sm mb-8">
+                        {t('rolesenderbadge')}
+                      </div>
+
+                      <h2 className="text-4xl lg:text-6xl font-black mb-6 leading-[1.1]">
+                        {t('rolesendert1')}
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-500">{t('rolesendert2')}</span>
+                      </h2>
+
+                      <p className="text-gray-400 text-lg lg:text-xl leading-relaxed mb-10">{t('rolesenderdesc')}</p>
+
+                      <div className="space-y-8">
+                        <div className="flex items-start gap-5">
+                          <div className="w-14 h-14 rounded-[20px] bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 text-xl font-bold">🚀</div>
+                          <div>
+                            <h4 className="text-white font-bold text-xl mb-2">{t('rolesenderp1t')}</h4>
+                            <p className="text-gray-400 text-sm leading-relaxed">{t('rolesenderp1d')}</p>
+                          </div>
+                        </div>
+
+                        <div className="flex items-start gap-5">
+                          <div className="w-14 h-14 rounded-[20px] bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 text-xl font-bold">🔐</div>
+                          <div>
+                            <h4 className="text-white font-bold text-xl mb-2">{t('rolesenderp2t')}</h4>
+                            <p className="text-gray-400 text-sm leading-relaxed">{t('rolesenderp2d')}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="md:w-1/2 flex justify-center fade-up">
+                      <AppMockupSender lang={lang} t={t} />
+                    </div>
+                  </div>
+
+                  {/* Traveler View */}
+                  <div className="flex flex-col md:flex-row-reverse items-center gap-16 lg:gap-24">
+                    <div className={`md:w-1/2 fade-up ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                      <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-green-500/10 border border-green-500/30 text-green-400 font-bold text-sm mb-8">
+                        {t('roletravbadge')}
+                      </div>
+
+                      <h2 className="text-4xl lg:text-6xl font-black mb-6 leading-[1.1]">
+                        {t('roletravt1')}
+                        <br />
+                        <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-teal-500">{t('roletravt2')}</span>
+                      </h2>
+
+                      <p className="text-gray-400 text-lg lg:text-xl leading-relaxed mb-10">{t('roletravdesc')}</p>
+
+                      <div className="space-y-8 mb-10">
+                        <div className="flex items-start gap-5">
+                          <div className="w-14 h-14 rounded-[20px] bg-green-500/15 border border-green-500/30 flex items-center justify-center text-green-400 shrink-0 text-xl font-bold">💰</div>
+                          <div>
+                            <h4 className="text-white font-bold text-xl mb-2">{t('roletravp1t')}</h4>
+                            <p className="text-gray-400 text-sm leading-relaxed">{t('roletravp1d')}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <button onClick={() => setShowModal(true)} className="bg-white text-black px-10 py-4 rounded-[20px] font-black text-lg hover:bg-gray-200 transition-transform hover:-translate-y-1 shadow-xl">
+                        {t('roletravbtn')}
+                      </button>
+                    </div>
+
+                    <div className="md:w-1/2 flex justify-center fade-up">
+                      <AppMockupTraveler lang={lang} t={t} />
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              {/* Contact Section - 4 Official Inboxes */}
+              <section id="contact" className="py-24 bg-[#05070B] border-t border-white/5 text-center">
+                <div className="container mx-auto max-w-7xl px-6">
+                  <h2 className="text-4xl lg:text-5xl font-black text-white mb-4">{t('contacttitle')}</h2>
+                  <p className="text-gray-400 text-lg mb-16">{t('contactsub')}</p>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {[
+                      { title: t('contactc1t'), desc: t('contactc1d'), email: 'hello@faltahapp.com', icon: '👋', color: 'text-blue-400', border: 'hover:border-blue-500/40' },
+                      { title: t('contactc2t'), desc: t('contactc2d'), email: 'support@faltahapp.com', icon: '🛟', color: 'text-green-400', border: 'hover:border-green-500/40' },
+                      { title: t('contactc3t'), desc: t('contactc3d'), email: 'operations@faltahapp.com', icon: '⚙️', color: 'text-amber-400', border: 'hover:border-amber-500/40' },
+                      { title: t('contactc4t'), desc: t('contactc4d'), email: 'partners@faltahapp.com', icon: '🤝', color: 'text-purple-400', border: 'hover:border-purple-500/40' }
+                    ].map((c, i) => (
+                      <div key={i} className={`bg-[#0E121A] border border-white/5 p-7 rounded-3xl flex flex-col items-center transition-all duration-300 ${c.border} hover:-translate-y-1`}>
+                        <div className="text-3xl mb-4">{c.icon}</div>
+                        <h3 className={`text-lg font-black mb-2 ${c.color}`}>{c.title}</h3>
+                        <p className="text-gray-400 text-xs mb-6 leading-relaxed min-h-[36px]">{c.desc}</p>
+                        <a href={`mailto:${c.email}`} className="w-full mt-auto bg-[#171D28] hover:bg-blue-600 hover:text-white transition-all text-gray-200 font-en py-3 rounded-xl text-xs font-bold tracking-wide border border-white/5 truncate px-2">
+                          {c.email}
+                        </a>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+
+              {/* FAQ Section */}
+              <section id="faq" className="py-24 bg-[#07090E] border-t border-white/5">
+                <div className="container mx-auto max-w-3xl px-6">
+                  <h2 className="text-4xl font-black text-white mb-4 text-center">{t('faqtitle')}</h2>
+                  <p className="text-gray-400 text-lg mb-16 text-center">{t('faqsub')}</p>
+
+                  <div className="space-y-4">
+                    {faqData[lang].map((item, idx) => (
+                      <div key={idx} className={`faq-item bg-[#0E121A] border border-white/5 rounded-2xl ${openFaq === idx ? 'active border-blue-500/30' : ''}`}>
+                        <button onClick={() => setOpenFaq(openFaq === idx ? null : idx)} className={`w-full flex justify-between items-center p-6 text-slate-200 font-bold ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                          <span>{item.q}</span>
+                          {Icons.ChevronDown}
+                        </button>
+
+                        <div className="faq-answer px-6">
+                          <p className={`pb-6 text-slate-400 text-sm border-t border-white/5 pt-4 leading-relaxed ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                            {item.a}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </section>
+            </main>
+          ) : renderLegalPage()}
+
+          {/* Footer */}
+          <footer className="pt-20 pb-10 border-t border-white/10 bg-[#030407]">
+            <div className="container mx-auto max-w-7xl px-6">
+              <div className={`flex flex-col md:flex-row justify-between items-center gap-8 border-b border-white/10 pb-8 mb-8 ${lang === 'en' ? 'md:flex-row-reverse' : ''}`}>
+                <div className={`flex flex-col items-center ${lang === 'ar' ? 'md:items-start' : 'md:items-end'} gap-4`}>
+                  <BrandLogo onClick={(e) => navigateTo('home', e)} />
+
+                  <div className={`flex items-center gap-3 mt-2 text-gray-400 text-sm ${lang === 'en' ? 'flex-row-reverse' : ''}`}>
+                    <span>{lang === 'ar' ? 'تابعنا على:' : 'Follow us:'}</span>
+                    <a href="https://www.linkedin.com/company/faltahtech" target="_blank" rel="noopener noreferrer" className="bg-white/5 hover:bg-blue-600 hover:text-white p-2 rounded-full transition-colors text-gray-300">
+                      {Icons.LinkedIn}
+                    </a>
+                  </div>
+                </div>
+
+                <div className={`flex flex-wrap justify-center gap-6 text-sm font-bold text-gray-400 ${lang === 'en' ? 'flex-row-reverse' : ''}`}>
+                  <a href="#features" onClick={(e) => handleScrollLink('features', e)} className="hover:text-white transition-colors">{t('navfeatures')}</a>
+                  <a href="#roles" onClick={(e) => handleScrollLink('roles', e)} className="hover:text-white transition-colors">{t('navhow')}</a>
+                  <a href="#contact" onClick={(e) => handleScrollLink('contact', e)} className="hover:text-white transition-colors">{t('navcontact')}</a>
+                  <a href="#faq" onClick={(e) => handleScrollLink('faq', e)} className="hover:text-white transition-colors">{t('faqtitle')}</a>
+                  <button onClick={(e) => navigateTo('privacy', e)} className="hover:text-white transition-colors">{t('privacy')}</button>
+                  <button onClick={(e) => navigateTo('terms', e)} className="hover:text-white transition-colors">{t('terms')}</button>
+                </div>
+              </div>
+
+              <div className="text-center text-xs text-gray-500 font-medium pt-2">
+                <p>{t('copyright')}</p>
+              </div>
+            </div>
+          </footer>
+
+          {/* Early Access Modal */}
+          {showModal && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+              <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setShowModal(false)}></div>
+
+              <div className="relative w-full max-w-md bg-[#0E121A] border border-white/10 rounded-3xl shadow-2xl overflow-hidden z-10">
+                <div className="flex justify-between items-center px-6 py-4 border-b border-white/10">
+                  <h3 className="font-bold text-white text-lg">{t('modaltitle')}</h3>
+                  <button onClick={() => setShowModal(false)} className="text-gray-400 hover:text-white transition-colors">{Icons.X}</button>
+                </div>
+
+                <div className="p-8">
+                  <p className={`text-gray-400 text-sm mb-6 leading-relaxed ${lang === 'ar' ? 'text-right' : 'text-left'}`}>
+                    {t('modaldesc')}
+                  </p>
+
+                  <WaitlistForm
+                    waitlistInput={waitlistInput}
+                    setWaitlistInput={setWaitlistInput}
+                    submitStatus={submitStatus}
+                    onSubmit={handleWaitlistSubmit}
+                    t={t}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      );
+    }
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+  </script>
+</body>
+</html>      box-shadow: 0 0 0 2px #222, 0 0 0 6px #111, 0 0 0 8px #333, 0 30px 60px rgba(0,0,0,0.8);
       position: relative;
       overflow: hidden;
       z-index: 10;
